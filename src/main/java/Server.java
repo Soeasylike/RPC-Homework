@@ -1,61 +1,101 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+/**
+ * Created by lyriccn on 18/3/27.
+ */
+
+import java.io.*;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 
 public class Server {
-    public static void main(String[] args) {
-        try {
-            //创建ServerSocket对象，绑定端口号
-            ServerSocket serverSocket = new ServerSocket(8888);
-            System.out.println("服务器启动成功，等待客户端连接...");
+    public void service() throws Exception {// 创建基于流的Socket,并在8000 端口监听
+        ServerSocket serverSocket = new ServerSocket(8000);
+        System.out.println(" 服务器启动......");
 
-            //等待客户端连接，阻塞式方法
-            Socket socket = serverSocket.accept();
-            System.out.println("客户端" + socket.getInetAddress().getHostAddress() + "已连接！");
-            //启动读取客户端消息的子线程
-            Thread thread = new Thread(new ReceiveMessage(socket));
-            thread.start();
-
-            //启动发送消息的主线程
-            sendMessage(socket);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    //发送消息的方法
-    public static void sendMessage(Socket socket) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        //获取输出流，向客户端发送数据
-        PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+        Socket socket = serverSocket.accept();
+        Executor cachedThread1 = Executors.newFixedThreadPool(1);
         while (true) {
-            String message = reader.readLine();
-            printWriter.println(message);
+            ServerThread st = new ServerThread(socket);
+            cachedThread1.execute(st);
         }
+
+    }
+
+    public static void main( String args[ ]) throws Exception {
+        Server server = new Server();
+        server.service();
     }
 }
 
-class ReceiveMessage implements Runnable {
-    private Socket socket;
+class ServerThread implements Runnable {
+    private Socket client;
+    InputStream in;
+    ObjectInputStream ois;
+    OutputStream out;
+    ObjectOutputStream oos;
 
-    public ReceiveMessage(Socket socket) {
-        this.socket = socket;
+    public ServerThread(Socket client) throws IOException {
+        this.client = client;// 初始化client变量
+        this.in = this.client.getInputStream();
+        this.ois = new ObjectInputStream(in);
+        this.out = this.client.getOutputStream();
+        this.oos = new ObjectOutputStream(out);
+
     }
 
-    @Override
-    public void run() {
+    public void run() {// 线程主体
+        //接收客户发送的Call 对象
+        RemoteCall remotecallobj = null;
         try {
-            //获取输入流，接收数据
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            while (true) {
-                String message = reader.readLine();
-                System.out.println("收到消息：" + message);
-            }
+            remotecallobj = (RemoteCall) ois.readObject();
+            System.out.println(remotecallobj);
+            // 调用相关对象的方法
+            System.out.println("calling......");
+            remotecallobj = invoke(remotecallobj);
+            // 向客户发送包含了执行结果的remotecallobj 对象
+            oos.writeObject(remotecallobj);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            ois.close();
+            oos.close();
+            client.close();
+            client.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
+    public RemoteCall invoke( RemoteCall call) {
+        Object result = null;
+        try {
+            String className = call.getClassName();
+            String methodName = call.getMethodName();
+            Object[] params = call.getParams();
+            Class<?> classType = Class.forName(className);
+            Class<?>[] paramTypes = call.getParamTypes();
+            Method method = classType.getMethod(methodName, paramTypes);
+            // 从配置文件中取出相关的远程对象Object
+            Object remoteObject =ConfigReader.register(className);
+            if (remoteObject == null) {
+                throw new Exception(className + " 的远程对象不存在");
+            } else {
+                result = method.invoke(remoteObject, params);
+                System.out.println("远程调用结束:remotObject:"+remoteObject.toString()+",params:"+params.toString());
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            result = null;
+        }
+        call.setResult(result);
+        return call;
+    }
+
 }
