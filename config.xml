@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <server>RPCService</server>
+    <serverImpl>RPCServiceImpl</serverImpl>
+
+    <server>RPCService1</server>
+    <serverImpl>RPCServiceImpl1</serverImpl>
+</configuration>
