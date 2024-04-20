@@ -15,8 +15,8 @@ public class Client {
     private final static String CLASS_PATH="rpc.clientRemote.";
 
     public static void main(String[] args) throws Exception {
-        
-        RPCService service=(RPCService)DynamicProxyFactory.getProxy(RPCService.class, "10.41.102.48", 8888);//new RPCServiceImpl();
+
+        RPCService service=(RPCService)DynamicProxyFactory.getProxy(RPCService.class, "localhost", 8888);//new RPCServiceImpl();
         Scanner sc=new Scanner(System.in);
         while(true){
             System.out.println("请选择：1-充值；0-消费；-1-exit");
@@ -64,8 +64,8 @@ public class Client {
         //接收包含了方法执行结果的Call 对象
         call = (RemoteCall) ois.readObject();
         System.out.println(call.getResult());
-        ois.close();        
-        oos.close();        
+        ois.close();
+        oos.close();
         socket.close();
         return (String)call.getResult();
     }

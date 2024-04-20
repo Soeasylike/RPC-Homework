@@ -17,9 +17,10 @@ public class Server {
         ServerSocket serverSocket = new ServerSocket(8888);
         System.out.println(" 服务器启动......");
 
-        Socket socket = serverSocket.accept();
         Executor cachedThread1 = Executors.newFixedThreadPool(1);
         while (true) {
+            Socket socket = serverSocket.accept();
+            System.out.println("连接中...");
             ServerThread st = new ServerThread(socket);
             cachedThread1.execute(st);
         }
@@ -49,6 +50,7 @@ class ServerThread implements Runnable {
     }
 
     public void run() {// 线程主体
+        System.out.println("连接成功.......");
         //接收客户发送的Call 对象
         RemoteCall remotecallobj = null;
         try {
