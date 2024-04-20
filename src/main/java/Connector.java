@@ -25,6 +25,7 @@ public class Connector {
     // 发送对象方法
     public void send(Object obj) throws Exception {
         oos.writeObject(obj);// 接收对象方法
+        oos.flush();
     }
 
     public Object receive() throws Exception {

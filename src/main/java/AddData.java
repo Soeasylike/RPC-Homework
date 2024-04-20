@@ -14,7 +14,7 @@ public class AddData {
         String id;
         int amount;
         int flag;
-        FileOutputStream fos=new FileOutputStream(".\\card.dat");
+        FileOutputStream fos=new FileOutputStream(".\\card_1.dat");
         ObjectOutputStream out=new ObjectOutputStream(fos);
         while(true){
             System.out.println("请输入卡号");

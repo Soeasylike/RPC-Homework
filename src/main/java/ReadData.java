@@ -13,14 +13,28 @@ public class ReadData {
         ObjectInputStream in;
         ArrayList<Card> cardList=null;
         try {
-            fis=new FileInputStream(".\\card.dat");
+            fis=new FileInputStream(".\\card_1.dat");
         } catch (FileNotFoundException e) {
             System.out.println("未创建");
         }
         if(fis!=null){
             in=new ObjectInputStream(fis);
-            cardList=(ArrayList<Card>) in.readObject();
+            try{
+                Object objectList=in.readObject();
+                if(objectList!=null){
+                    cardList= (ArrayList<Card>) objectList;
+                }
+                else{
+                    System.out.println("objectList为空");
+                }
+            }
+            //cardList=(ArrayList<Card>) in.readObject();}
+            catch (IOException e){
+                System.out.println("读文件获得列表"+e.getMessage());
+            }
             fis.close();
+        }else{
+            System.out.println("文件为空");
         }
         for(Card card:cardList){
             System.out.println(card.getCardId()+" "+card.getMoney());

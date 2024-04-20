@@ -16,7 +16,7 @@ public class Client {
 
     public static void main(String[] args) throws Exception {
 
-        RPCService service=(RPCService)DynamicProxyFactory.getProxy(RPCService.class, "localhost", 8888);//new RPCServiceImpl();
+        RPCService service=(RPCService)DynamicProxyFactory.getProxy(RPCService.class, "10.41.102.48", 8888);//new RPCServiceImpl();
         Scanner sc=new Scanner(System.in);
         while(true){
             System.out.println("请选择：1-充值；0-消费；-1-exit");
@@ -54,7 +54,7 @@ public class Client {
 
 
     public static String invoke(String infomation) throws Exception {
-        Socket socket = new Socket("localhost", 8000);
+        Socket socket = new Socket("localhost", 8888);
         OutputStream out = socket.getOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(out);
         InputStream in = socket.getInputStream();

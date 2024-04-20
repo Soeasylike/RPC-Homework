@@ -1,5 +1,9 @@
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lyriccn on 18/3/27.
@@ -11,38 +15,24 @@ public class RPCServiceImpl implements  RPCService {
         //读取参数信息
         String id= card.getCardId();
         int amount=card.getAmount();
+        Gson gson=new Gson();
+        List<Card> cardList = null;
+        String fileName="src/main/java/json_data.json";
         //读文件得到一个列表
-        FileInputStream fis = null;
-        ObjectInputStream in;
-        try {
-            fis = new FileInputStream(".\\card.dat");
+        try{
+            BufferedReader reader=new BufferedReader(new FileReader(fileName));
+            TypeToken<List<Card>> typeToken=new TypeToken<List<Card>>(){};
+            cardList=gson.fromJson(reader,typeToken.getType());
         } catch (FileNotFoundException e) {
-            System.out.println("card文件还没创建"+e.getMessage());
+            System.out.println("找不到文件"+e.getMessage());
         }
-        ArrayList<Card> cardList = null;
-        if (fis != null) {
-            try {
-                in = new ObjectInputStream(fis);
-                cardList = (ArrayList<Card>) in.readObject();
-                fis.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        //在列表中找到卡号
-        //写文件
-        FileOutputStream fos = null;
-        ObjectOutputStream out;
+        FileWriter writer = null;
         try {
-            fos = new FileOutputStream(".\\card.dat");
-            out = new ObjectOutputStream(fos);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            writer = new FileWriter(fileName);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("创建writer失败"+e.getMessage());
         }
+
         int flag=0;
         for (Card card1 :cardList){
             if(card1.getCardId().equals(id)) {
@@ -50,18 +40,15 @@ public class RPCServiceImpl implements  RPCService {
                 flag = 1;
                 int index = cardList.indexOf(card1);
                 //充值
-                cardList.get(index).setAmount(card.getAmount() + amount);
+                cardList.get(index).setAmount(card1.getAmount() + amount);
                 //更新完列表，把一整个列表重写回文件
+                gson.toJson(cardList, writer);
                 try {
-                    out.writeObject(cardList);
+                    writer.flush();
                 } catch (IOException e) {
-                    System.out.println("写回文件失败" + e.getMessage());
+                    System.out.println("写入文件失败");
                 }
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    System.out.println("关闭文件失败" + e.getMessage());
-                }
+
                 return "充值成功";
             }
         }
@@ -69,15 +56,11 @@ public class RPCServiceImpl implements  RPCService {
             //未找到卡号
             Card newCard=new Card(id,0);
             cardList.add(newCard);
+            gson.toJson(cardList,writer);
             try {
-                out.writeObject(cardList);
+                writer.flush();
             } catch (IOException e) {
-                System.out.println("未找到卡号时写入文件失败"+e.getMessage());
-            }
-            try {
-                fos.close();
-            } catch (IOException e) {
-                System.out.println("未找到卡号时关闭文件失败"+e.getMessage());
+                System.out.println("写入文件失败"+e.getMessage());
             }
             return "未找到卡号，已为您创建卡号,若要充值请重新输入";
         }
@@ -90,34 +73,24 @@ public class RPCServiceImpl implements  RPCService {
         //读取参数信息
         String id= card.getCardId();
         int amount=card.getAmount();
-        //读文件得到一个列表
-        FileInputStream fis = null;
-        ObjectInputStream in;
-        try {
-            fis = new FileInputStream(".\\card.dat");
+        Gson gson=new Gson();
+        List<Card> cardList = null;
+        String fileName="src/main/java/json_data.json";
+        try{
+            BufferedReader reader=new BufferedReader(new FileReader(fileName));
+            TypeToken<List<Card>> typeToken=new TypeToken<List<Card>>(){};
+            cardList=gson.fromJson(reader,typeToken.getType());
         } catch (FileNotFoundException e) {
-            System.out.println("card文件还没创建"+e.getMessage());
+            System.out.println("找不到文件"+e.getMessage());
         }
-        ArrayList<Card> cardList = null;
-        if (fis != null) {
-            try {
-                in = new ObjectInputStream(fis);
-                cardList = (ArrayList<Card>) in.readObject();
-                fis.close();
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        //在列表中找到卡号
-        //写文件
-        FileOutputStream fos = null;
-        ObjectOutputStream out;
+        FileWriter writer = null;
         try {
-            fos = new FileOutputStream(".\\card.dat");
-            out = new ObjectOutputStream(fos);
+            writer = new FileWriter(fileName);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("创建writer失败"+e.getMessage());
         }
+        //读文件得到一个列表
+
         int flag=0;
         for(Card card1 :cardList){
             if(card1.getCardId().equals(id)){
@@ -125,34 +98,29 @@ public class RPCServiceImpl implements  RPCService {
                 flag=1;
                 int index=cardList.indexOf(card1);
                 if(card1.amount<amount){
+                    gson.toJson(cardList,writer);
                     try {
-                        out.writeObject(cardList);
+                        writer.flush();
                     } catch (IOException e) {
-                        System.out.println("列表写回文件失败"+e.getMessage());
+                        System.out.println("写入文件失败");
                     }
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        System.out.println("关闭文件失败"+e.getMessage());
-                    }
-                    return "余额不足";
+                    return "余额不足,无法消费";
                 }
                 else{
                     //余额充足可消费
-                    cardList.get(index).setAmount(card.getAmount()-amount);
+                    cardList.get(index).setAmount(card1.getAmount()-amount);
+                    gson.toJson(cardList,writer);
                     try {
-                        out.writeObject(cardList);
+                        writer.flush();
                     } catch (IOException e) {
-                        System.out.println("写回文件失败"+e.getMessage());
-                    }
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        System.out.println("关闭文件失败"+e.getMessage());
+                        System.out.println("写入文件失败");
                     }
                     return "消费成功";
                 }
             }
+        }
+        if(flag==0){
+            return "不存在该卡号，无法消费";
         }
         return null;
     }

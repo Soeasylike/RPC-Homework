@@ -23,9 +23,11 @@ public class DynamicProxyFactory {
                     connector.send(call);
                     System.out.println("send 成功");
                     call = (RemoteCall) connector.receive();
+                    System.out.println("接收返回结果成功");
                     Object result = call.getResult();
                     return result;
-                } finally {
+                }
+                finally {
                     if (connector != null) connector.close();
                 }
 

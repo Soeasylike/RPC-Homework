@@ -61,6 +61,7 @@ class ServerThread implements Runnable {
             remotecallobj = invoke(remotecallobj);
             // 向客户发送包含了执行结果的remotecallobj 对象
             oos.writeObject(remotecallobj);
+            oos.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
@@ -89,13 +90,18 @@ class ServerThread implements Runnable {
             if (remoteObject == null) {
                 throw new Exception(className + " 的远程对象不存在");
             } else {
+                System.out.println("method开始执行");
+                //可以执行方法 方法内部有错误
                 result = method.invoke(remoteObject, params);
-                System.out.println("远程调用结束:remotObject:"+remoteObject.toString()+",params:"+params.toString());
+                //
+                System.out.println("method的result="+result);
+                System.out.println("远程调用结束:remoteObject:"+remoteObject.toString()+",params:"+params.toString());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("error"+e.getMessage());
             result = null;
         }
+        System.out.println("result="+result);
         call.setResult(result);
         return call;
     }
