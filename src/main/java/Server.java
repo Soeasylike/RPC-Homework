@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
     public void service() throws Exception {// 创建基于流的Socket,并在8000 端口监听
-        ServerSocket serverSocket = new ServerSocket(8000);
+        ServerSocket serverSocket = new ServerSocket(8888);
         System.out.println(" 服务器启动......");
 
         Socket socket = serverSocket.accept();
@@ -26,7 +26,7 @@ public class Server {
 
     }
 
-    public static void main( String args[ ]) throws Exception {
+    public static void main( String args[]) throws Exception {
         Server server = new Server();
         server.service();
     }

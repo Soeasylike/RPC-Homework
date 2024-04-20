@@ -2,11 +2,11 @@ import java.io.Serializable;
 
 public class Card implements Serializable {
     String cardId;
-    int money;
+    int amount;
 
-    public Card(String cardId, int money) {
+    public Card(String cardId, int amount) {
         this.cardId = cardId;
-        this.money = money;
+        this.amount = amount;
     }
     public Card(){}
 
@@ -18,11 +18,11 @@ public class Card implements Serializable {
         this.cardId = cardId;
     }
 
-    public int getMoney() {
-        return money;
+    public int getAmount() {
+        return amount;
     }
 
-    public void setMoney(int money) {
-        this.money = money;
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

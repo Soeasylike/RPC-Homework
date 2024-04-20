@@ -1,18 +1,16 @@
+package Other;
+
 import java.io.Serializable;
 
-public class CardUse implements Serializable {
+public class Card implements Serializable {
     String cardId;
-    int type;
     int money;
 
-    public CardUse(String cardId, int type, int money) {
+    public Card(String cardId, int money) {
         this.cardId = cardId;
-        this.type = type;
         this.money = money;
     }
-
-    public CardUse(){
-    }
+    public Card(){}
 
     public String getCardId() {
         return cardId;
@@ -20,14 +18,6 @@ public class CardUse implements Serializable {
 
     public void setCardId(String cardId) {
         this.cardId = cardId;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
     }
 
     public int getMoney() {

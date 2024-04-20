@@ -13,8 +13,15 @@ public class DynamicProxyFactory {
                 Connector connector = null;
                 try {
                     connector = new Connector(host, port);
+
+                    System.out.println("classType_Name="+classType.getName());
+                    System.out.println("methodName="+method.getName());
+                    System.out.println("methodParasType"+method.getParameterTypes());
+                    System.out.println("args="+args);
+
                     RemoteCall call = new RemoteCall(classType.getName(), method.getName(), method.getParameterTypes(), args);
                     connector.send(call);
+                    System.out.println("send 成功");
                     call = (RemoteCall) connector.receive();
                     Object result = call.getResult();
                     return result;
